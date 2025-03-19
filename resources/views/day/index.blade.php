@@ -404,14 +404,14 @@
       <div class="container section-title" data-aos="fade-up">
         <span>Investimento</span>
         <h2>Investimento</h2>
-        <p>Valores que cabem no seu bolso e evitam dores de cabeça</p>
+        <p>Temos o plano pensado diretamente para sua necessidade, além de atualizações extras de acordo com as solicitações.</p>
       </div><!-- End Section Title -->
 
       <div class="container">
 
         <div class="row g-4 g-lg-0">
 
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
+          {{-- <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
             <div class="pricing-item">
               <h3>Plano básico</h3>
               <h4><sup>R$</sup>40<span> / mês</span></h4>
@@ -426,25 +426,9 @@
               </ul>
               <div class="text-center"><a href="https://wa.me/5581996581977?text=Gostaria%20de%20comprar%20o%20plano%20Básico%20de%20Controle%20de%20Acesso&app_absent=1" target="_blank" class="buy-btn">Compre Agora</a></div>
             </div>
-          </div><!-- End Pricing Item -->
+          </div><!-- End Pricing Item --> --}}
 
           <div class="col-lg-4 featured" data-aos="zoom-in" data-aos-delay="200">
-            <div class="pricing-item">
-              <h3>Plano Business</h3>
-              <h4><sup>R$</sup>60<span> / mês</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Cadastro de Visitantes e Funcionários</span></li>
-                <li><i class="bi bi-check"></i> <span>Registro de Acesso de Visitantes e Funcionários com foto</span></li>
-                <li><i class="bi bi-check"></i> <span>Relatório de Acessos dos Visitantes e Funcionários</span></li>
-                <li><i class="bi bi-check"></i> <span>Suporte diário em horário comercial</span></li>
-                <li><i class="bi bi-check"></i> <span>Cadastro Opcional de Produtos/Móveis/Itens</span></li>
-                <li class="na"><i class="bi bi-x"></i> <span>Suporte 24h</span></li>
-              </ul>
-              <div class="text-center"><a href="https://wa.me/5581996581977?text=Gostaria%20de%20comprar%20o%20plano%20Business%20de%20Controle%20de%20Acesso&app_absent=1" target="_blank" class="buy-btn">Compre Agora</a></div>
-            </div>
-          </div><!-- End Pricing Item -->
-
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
             <div class="pricing-item">
               <h3>Plano Premium</h3>
               <h4><sup>R$</sup>100<span> / mês</span></h4>
@@ -458,6 +442,23 @@
               <div class="text-center"><a href="https://wa.me/5581996581977?text=Gostaria%20de%20comprar%20o%20plano%20Premium%20de%20Controle%20de%20Acesso&app_absent=1" target="_blank" class="buy-btn">Compre Agora</a></div>
             </div>
           </div><!-- End Pricing Item -->
+
+          {{-- <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
+            <div class="pricing-item">
+              <h3>Plano Business</h3>
+              <h4><sup>R$</sup>60<span> / mês</span></h4>
+              <ul>
+                <li><i class="bi bi-check"></i> <span>Cadastro de Visitantes e Funcionários</span></li>
+                <li><i class="bi bi-check"></i> <span>Registro de Acesso de Visitantes e Funcionários com foto</span></li>
+                <li><i class="bi bi-check"></i> <span>Relatório de Acessos dos Visitantes e Funcionários</span></li>
+                <li><i class="bi bi-check"></i> <span>Suporte diário em horário comercial</span></li>
+                <li><i class="bi bi-check"></i> <span>Cadastro Opcional de Produtos/Móveis/Itens</span></li>
+                <li class="na"><i class="bi bi-x"></i> <span>Suporte 24h</span></li>
+              </ul>
+              <div class="text-center"><a href="https://wa.me/5581996581977?text=Gostaria%20de%20comprar%20o%20plano%20Business%20de%20Controle%20de%20Acesso&app_absent=1" target="_blank" class="buy-btn">Compre Agora</a></div>
+            </div>
+          </div><!-- End Pricing Item --> --}}
+
 
         </div>
 
@@ -574,13 +575,13 @@
           </div>
           <!-- End Info Item -->
 
-          <div class="col-lg-3 col-md-6">
+          {{-- <div class="col-lg-3 col-md-6">
             <div class="info-item d-flex flex-column justify-content-center align-items-center" data-aos="fade-up" data-aos-delay="400">
               <i class="bi bi-envelope"></i>
               <h3>Nosso Email</h3>
               <p>info@example.com</p>
             </div>
-          </div><!-- End Info Item -->
+          </div><!-- End Info Item --> --}}
 
         </div>
 
