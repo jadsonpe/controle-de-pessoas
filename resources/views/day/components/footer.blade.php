@@ -9,7 +9,7 @@
               {{-- <p>A108 Adam Street</p>
               <p>New York, NY 535022</p> --}}
               <p class="mt-3"><strong>Cel/Whatsapp:</strong> <span>+55 81996581977</span></p>
-              <p><strong>Email:</strong> <span>info@example.com</span></p>
+              {{-- <p><strong>Email:</strong> <span>info@example.com</span></p> --}}
             </div>
             <div class="social-links d-flex mt-2">
               <a href=""><i class="bi bi-twitter-x"></i></a>
@@ -28,7 +28,7 @@
             <li><a href="#services">Serviços</a></li>
             <li><a href="#pricing">Investimento</a></li>
             <li><a href="#contact">Contato</a></li>
-            <li><a href="/login">Entrar</a></li>
+            <li><a href="{{ route('login') }}">Entrar</a></li>
           </ul>
         </div>
 
