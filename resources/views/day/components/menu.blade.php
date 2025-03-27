@@ -49,7 +49,7 @@
               </ul>
             </li> --}}
             <li><a href="#contact">Contato</a></li>
-            <li><a href="{{ route('login')}}">Entrar</a></li>
+            {{-- <li><a href="{{ route('login')}}">Entrar</a></li> --}}
           </ul>
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>

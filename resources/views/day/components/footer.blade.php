@@ -28,7 +28,7 @@
             <li><a href="#services">Serviços</a></li>
             <li><a href="#pricing">Investimento</a></li>
             <li><a href="#contact">Contato</a></li>
-            <li><a href="{{ route('login') }}">Entrar</a></li>
+            {{-- <li><a href="{{ route('login') }}">Entrar</a></li> --}}
           </ul>
         </div>
 

@@ -68,7 +68,7 @@ body {
 
 a {
   color: var(--accent-color);
-  text-decoration: none;
+  text-decoration: none !important;
   transition: 0.3s;
 }
 
@@ -187,7 +187,7 @@ h6 {
 
 .header .topbar .contact-info i a:hover {
   color: var(--contrast-color);
-  text-decoration: underline;
+  text-decoration: none !important;
 }
 
 .header .topbar .social-links a {
@@ -206,13 +206,43 @@ h6 {
   min-height: 50px;
 }
 
+/* .branding {
+  background-color: #000000;
+  min-height: 50px;
+} */
+
+.top-header {
+  background-color: #000000; /* Cor de fundo preta */
+  color: rgb(255, 255, 255);
+  padding: 10px 0;
+}
+
 .header .logo {
   line-height: 1;
+  
 }
 
 .header .logo img {
   max-height: 36px;
   margin-right: 8px;
+}
+
+.logo-img {
+  width: 50px; /* Tamanho padrão para desktop */
+}
+
+/* Para dispositivos móveis (menos que 768px de largura) */
+@media (max-width: 768px) {
+  .logo-img {
+      width: 40px; /* Tamanho menor para mobile */
+  }
+}
+
+/* Para telas ainda menores (ex: celulares em modo retrato) */
+@media (max-width: 480px) {
+  .logo-img {
+      width: 30px; /* Logo ainda menor para telas pequenas */
+  }
 }
 
 .header .logo h1 {
@@ -246,7 +276,8 @@ h6 {
 
   .navmenu a,
   .navmenu a:focus {
-    color: var(--nav-color);
+    /* color: var(--nav-color); */
+    color: #df1529;
     padding: 20px 15px;
     margin-left: 2px;
     font-size: 16px;
