@@ -112,8 +112,8 @@
                     <li><a href="{{ route('leituras-energia.index') }}" class="{{ request()->routeIs('leituras-energia.*') ? 'active' : '' }}">Energia</a></li>
                     {{-- <li><a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">Usuários</a></li> --}}
                 </ul>
-                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
             </nav>
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </div>
     </header>
 
