@@ -24,4 +24,17 @@ class Apartamento extends Model
     {
         return $this->hasMany(LeituraEnergia::class);
     }
+    public function hospedeAtivo()
+    {
+        return $this->hasOne(Hospede::class)
+                    ->where(function($query) {
+                        $query->where('data_saida', '>=', now())
+                              ->orWhereNull('data_saida');
+                    });
+    }
+
+    public function ultimaLeitura()
+    {
+        return $this->hasOne(LeituraEnergia::class)->latest('data_leitura');
+    }
 }

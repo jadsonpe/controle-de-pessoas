@@ -21,7 +21,7 @@
             <tr>
                 <th>#</th> <!-- Número de Ordem -->
                 <th>Hóspede</th>
-                <th>Carro</th>
+                <th>Veiculo</th>
                 <th>Placa</th>
                 <th>Ações</th>
             </tr>

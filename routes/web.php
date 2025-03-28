@@ -30,7 +30,8 @@ use App\Http\Controllers\MovimentacaoHospedeController;
         Route::get('relatorios', [DashboardController::class, 'relatorios'])->name('relatorios');
         Route::get('usuarios', [DashboardController::class, 'usuarios'])->name('usuarios');
     // });
-
+        // Route::get('leituras-energia/ultima-leitura/{apartamento}', [LeituraEnergiaController::class, 'ultimaLeitura']);
+        Route::get('/leituras-energia/ultima-leitura/{apartamento}', [LeituraEnergiaController::class, 'ultimaLeitura']);
     // Rota para porteiros
     // // Route::middleware(['role:porteiro'])->group(function () {
     //     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.porteiro');

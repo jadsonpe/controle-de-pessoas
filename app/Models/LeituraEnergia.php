@@ -24,4 +24,9 @@ class LeituraEnergia extends Model
     {
         return $this->belongsTo(Apartamento::class);
     }
+
+    public function hospede()
+    {
+        return $this->belongsTo(Hospede::class);
+    }
 }
