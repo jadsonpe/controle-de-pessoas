@@ -37,17 +37,17 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="leitura_anterior" class="form-label">Leitura Anterior (kWh)</label>
+                                <label for="leitura_entrada" class="form-label">Leitura Anterior (kWh)</label>
                                 <input type="number" step="0.01" class="form-control" 
-                                       id="leitura_anterior" name="leitura_anterior" readonly>
+                                       id="leitura_entrada" name="leitura_entrada" readonly>
                             </div>
                             
                             <div class="col-md-6 mb-3">
                                 <label for="leitura_atual" class="form-label">Leitura Atual (kWh) *</label>
-                                <input type="number" step="0.01" class="form-control @error('leitura_atual') is-invalid @enderror" 
-                                       id="leitura_atual" name="leitura_atual" 
-                                       value="{{ old('leitura_atual') }}" required>
-                                @error('leitura_atual')
+                                <input type="number" step="0.01" class="form-control @error('leitura_saida') is-invalid @enderror" 
+                                       id="leitura_saida" name="leitura_saida" 
+                                       value="{{ old('leitura_saida') }}" required>
+                                @error('leitura_saida')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -83,7 +83,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const apartamentoSelect = document.getElementById('apartamento_id');
-        const leituraAnteriorInput = document.getElementById('leitura_anterior');
+        const leituraAnteriorInput = document.getElementById('leitura_entrada');
 
         apartamentoSelect.addEventListener('change', function() {
             let apartamentoId = this.value;
@@ -96,12 +96,12 @@
                         if (data.leitura_saida) {
                             leituraAnteriorInput.value = data.leitura_saida;
                         } else {
-                            leituraAnteriorInput.value = "0.00";
+                            leituraAnteriorInput.value = "0";
                         }
                     })
                     .catch(error => {
                         console.error('Erro:', error);
-                        leituraAnteriorInput.value = "0.00";
+                        leituraAnteriorInput.value = "0";
                     });
             } else {
                 leituraAnteriorInput.value = "";
