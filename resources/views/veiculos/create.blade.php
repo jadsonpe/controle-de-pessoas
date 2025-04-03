@@ -14,8 +14,8 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="carro">Carro</label>
-            <input type="text" class="form-control" id="carro" name="carro" required>
+            <label for="veiculo">Veiculo</label>
+            <input type="text" class="form-control" id="veiculo" name="veiculo" required>
         </div>
         <div class="form-group">
             <label for="cor">Cor</label>

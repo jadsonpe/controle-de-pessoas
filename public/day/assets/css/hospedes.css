@@ -1,0 +1,160 @@
+/* hospedes.css - Estilos específicos para a view de Hóspedes */
+
+/* ==================== 
+   ESTRUTURA PRINCIPAL
+   ==================== */
+   .hospedes-container {
+    padding-top: var(--space-md);
+    padding-bottom: var(--space-lg);
+}
+
+.hospedes-header {
+    margin-bottom: var(--space-lg);
+}
+
+/* ==================== 
+   CARD PRINCIPAL
+   ==================== */
+.hospedes-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+}
+
+.hospedes-card .card-header {
+    background-color: var(--primary);
+    color: white;
+    padding: var(--space-sm) var(--space-md);
+}
+
+/* ==================== 
+   TABELA DE HÓSPEDES
+   ==================== */
+.hospedes-table {
+    font-size: 0.925rem;
+    margin-bottom: 0;
+}
+
+.hospedes-table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    white-space: nowrap;
+    vertical-align: middle;
+    padding: var(--space-sm) var(--space-md);
+}
+
+.hospedes-table td {
+    padding: var(--space-sm) var(--space-md);
+    vertical-align: middle;
+}
+
+.hospedes-table .badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+.hospedes-table .img-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+/* ==================== 
+   DROPDOWN ACOMPANHANTES
+   ==================== */
+.acompanhantes-dropdown .dropdown-toggle {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.825rem;
+}
+
+/* ==================== 
+   BOTÕES DE AÇÃO
+   ==================== */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-buttons .btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+/* ==================== 
+   ESTADO VAZIO
+   ==================== */
+.empty-hospedes {
+    padding: var(--space-lg) 0;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-hospedes .icon {
+    font-size: 2.5rem;
+    opacity: 0.5;
+    margin-bottom: var(--space-sm);
+}
+
+/* ==================== 
+   PAGINAÇÃO
+   ==================== */
+.hospedes-pagination {
+    margin-top: var(--space-md);
+}
+
+.hospedes-pagination .pagination {
+    justify-content: center;
+}
+
+/* ==================== 
+   RESPONSIVIDADE
+   ==================== */
+@media (max-width: 991.98px) {
+    .hospedes-table td:nth-child(3),
+    .hospedes-table th:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .hospedes-table {
+        font-size: 0.85rem;
+    }
+    
+    .hospedes-table td:nth-child(5),
+    .hospedes-table th:nth-child(5) {
+        display: none;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hospedes-table td:nth-child(4),
+    .hospedes-table th:nth-child(4) {
+        display: none;
+    }
+    
+    .hospedes-card .card-header {
+        flex-direction: column;
+        gap: var(--space-xs);
+        align-items: flex-start;
+    }
+    
+    .hospedes-card .card-header .btn {
+        width: 100%;
+        margin-top: var(--space-xs);
+    }
+}

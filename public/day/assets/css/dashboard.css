@@ -1,0 +1,138 @@
+
+/* ==================== 
+   ESTRUTURA PRINCIPAL
+   ==================== */
+   .dashboard-container {
+    padding-top: var(--space-md);
+    padding-bottom: var(--space-lg);
+}
+
+.dashboard-header {
+    margin-bottom: var(--space-lg);
+}
+
+.dashboard-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--heading-color);
+    margin-bottom: var(--space-xs);
+}
+
+.dashboard-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+/* ==================== 
+   CARDS DO DASHBOARD
+   ==================== */
+.dashboard-card {
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    margin-bottom: var(--space-md);
+}
+
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card .card-header {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 0.5rem 0.5rem 0 0 !important;
+    padding: var(--space-sm) var(--space-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-card .card-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* ==================== 
+   TABELAS
+   ==================== */
+.dashboard-table {
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+.dashboard-table th {
+    background-color: #f8f9fa;
+    padding: var(--space-sm) var(--space-md);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.dashboard-table td {
+    padding: var(--space-sm) var(--space-md);
+    vertical-align: middle;
+    border-top: 1px solid #eee;
+}
+
+/* ==================== 
+   LISTA DE LEITURAS
+   ==================== */
+.readings-list .list-group-item {
+    border-left: none;
+    border-right: none;
+    padding: var(--space-sm) var(--space-md);
+}
+
+.readings-list .list-group-item:first-child {
+    border-top: none;
+}
+
+.readings-list .reading-value {
+    font-family: var(--font-monospace);
+    background-color: #f8f9fa;
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+/* ==================== 
+   RESPONSIVIDADE
+   ==================== */
+@media (max-width: 767.98px) {
+    .dashboard-card .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xs);
+    }
+    
+    .dashboard-card .card-header .btn {
+        width: 100%;
+        margin-top: var(--space-xs);
+    }
+    
+    .dashboard-table {
+        font-size: 0.8rem;
+    }
+    
+    .dashboard-table th, 
+    .dashboard-table td {
+        padding: var(--space-xs) var(--space-sm);
+    }
+}
+
+/* ==================== 
+   ESTADOS VAZIOS
+   ==================== */
+.empty-state {
+    padding: var(--space-lg) 0;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-state .icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+    opacity: 0.5;
+}

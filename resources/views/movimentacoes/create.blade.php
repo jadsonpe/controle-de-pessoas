@@ -3,7 +3,16 @@
 @section('content')
 <div class="container">
     <h2>Nova Movimentação</h2>
-
+    @if ($errors->any())
+        <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    
     <form action="{{ route('movimentacoes.store') }}" method="POST">
         @csrf
 
@@ -11,22 +20,26 @@
             <label>Hóspede</label>
             <select name="hospede_id" id="hospede_id" class="form-control" required>
                 <option value="" selected disabled>Selecione um hóspede</option>
-                @foreach($hospedes as $hospede)
-                    <option value="{{ $hospede->id }}" data-apartamento-id="{{ $hospede->apartamento_id }}">{{ $hospede->nome }}</option>
+                @foreach($hospedes->sortBy('apartamento_id') as $hospede)
+                    <option value="{{ $hospede->id }}" 
+                            data-apartamento-id="{{ $hospede->apartamento_id }}"
+                            data-data-entrada="{{ $hospede->data_entrada ? \Carbon\Carbon::parse($hospede->data_entrada)->format('Y-m-d\TH:i') : '' }}">
+                        Apto {{ $hospede->apartamento_id }} - {{ $hospede->nome }}
+                    </option>
                 @endforeach
             </select>
         </div>
-        
+
         <div class="form-group">
             <label>Apartamento</label>
             <select name="apartamento_id" id="apartamento_id" class="form-control" required>
-                {{-- <option value="" selected disabled>Selecione um apartamento</option> --}}
+                {{-- O conteúdo será preenchido via JavaScript --}}
             </select>
         </div>
 
         <div class="form-group">
             <label>Data de Entrada</label>
-            <input type="datetime-local" name="data_entrada" class="form-control" required>
+            <input type="datetime-local" name="data_entrada" id="data_entrada" class="form-control" required>
         </div>
 
         <div class="form-group">
@@ -46,24 +59,26 @@
 </div>
 
 <script>
-    // Quando o hóspede for selecionado, preenche o apartamento
     document.getElementById('hospede_id').addEventListener('change', function() {
-        var hospedeId = this.value;
+        var selectedOption = this.selectedOptions[0];
         var apartamentoSelect = document.getElementById('apartamento_id');
-        var apartamentoId = this.selectedOptions[0].getAttribute('data-apartamento-id'); // ID do apartamento do hóspede
+        var dataEntradaInput = document.getElementById('data_entrada');
         
-        // Limpar o select de apartamentos
-        // apartamentoSelect.innerHTML = '<option value="" selected disabled>Selecione um apartamento</option>';
-        apartamentoSelect.innerHTML = apartamentoId;
+        // Obter dados do hóspede selecionado
+        var apartamentoId = selectedOption.getAttribute('data-apartamento-id');
+        var dataEntrada = selectedOption.getAttribute('data-data-entrada');
 
-
+        // Preencher o apartamento
+        apartamentoSelect.innerHTML = '';
         if (apartamentoId) {
-            // Criar uma opção com o apartamento atual
             var option = document.createElement('option');
             option.value = apartamentoId;
-            option.textContent = 'Apartamento ' + apartamentoId;  // Aqui você pode customizar o texto
+            option.textContent = 'Apartamento ' + apartamentoId;
             apartamentoSelect.appendChild(option);
         }
+
+        // Preencher a data de entrada
+        dataEntradaInput.value = dataEntrada || '';
     });
 </script>
 @endsection

@@ -30,4 +30,16 @@ class MovimentacaoHospede extends Model
     {
         return $this->belongsTo(Apartamento::class);
     }
+
+    // No modelo MovimentacaoHospede.php
+    protected static function booted()
+    {
+        static::updated(function ($movimentacao) {
+            if ($movimentacao->wasChanged('data_saida')) {
+                $hospede = $movimentacao->hospede;
+                $hospede->data_saida = $movimentacao->data_saida;
+                $hospede->save();
+            }
+        });
+    }
 }

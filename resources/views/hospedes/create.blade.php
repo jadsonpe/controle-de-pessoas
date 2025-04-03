@@ -65,8 +65,8 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="data_nascimento" class="form-label">Data de Nascimento</label>
-                                <input type="date" name="data_nascimento" id="data_nascimento" class="form-control"
+                                <label for="data_nascimento" class="form-label">Data de Nascimento<span class="text-danger"> *</span></label>
+                                <input type="date" name="data_nascimento" id="data_nascimento" class="form-control" required
                                        value="{{ old('data_nascimento') }}">
                             </div>
                             <div class="col-md-6 mb-3">
@@ -85,7 +85,7 @@
                     <!-- Seção 2: Contato e Profissional -->
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label for="email" class="form-label">E-mail</label>
+                            <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
                             <input type="email" name="email" id="email" class="form-control"
                                    value="{{ old('email') }}" placeholder="exemplo@email.com">
                             @error('email')
@@ -167,7 +167,8 @@
                                 'SC' => 'Santa Catarina',
                                 'SP' => 'São Paulo',
                                 'SE' => 'Sergipe',
-                                'TO' => 'Tocantins'
+                                'TO' => 'Tocantins',
+                                'EX' => 'EXTERIOR',
                             ];@endphp
                             <div class="col-md-4 mb-3">
                                 <label for="estado" class="form-label">Estado</label>
@@ -190,9 +191,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="carro" class="form-label">Modelo</label>
-                                <input type="text" name="carro" id="carro" class="form-control"
-                                       value="{{ old('carro') }}" placeholder="Ex: Ford Ka">
+                                <label for="veiculo" class="form-label">Modelo</label>
+                                <input type="text" name="veiculo" id="veiculo" class="form-control"
+                                       value="{{ old('veiculo') }}" placeholder="Ex: Ford Ka">
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="cor" class="form-label">Cor</label>

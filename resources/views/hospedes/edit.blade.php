@@ -64,7 +64,6 @@
                             <input type="text" name="passaporte" id="passaporte" class="form-control"
                                    value="{{ old('passaporte', $hospede->passaporte) }}">
                         </div>
-
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="data_nascimento" class="form-label">Data de Nascimento</label>
@@ -151,7 +150,8 @@
                     'SC' => 'Santa Catarina',
                     'SP' => 'São Paulo',
                     'SE' => 'Sergipe',
-                    'TO' => 'Tocantins'
+                    'TO' => 'Tocantins',
+                    'HI' => 'Hóspede Internacional'
                 ];@endphp
                 <!-- Seção 3: Endereço -->
                 <div class="card mt-4">
@@ -175,14 +175,13 @@
                                 <select name="estado" id="estado" class="form-select">
                                     <option value="" selected>Selecione</option>
                                     @foreach($estadosBrasil as $uf => $estado)
-                                    <option value="{{ $uf }}" {{ old('estado') == $uf ? 'selected' : '' }}>{{ $estado }}</option>
+                                    <option value="{{ $uf }}" {{ old('estado', $hospede->estado) == $uf ? 'selected' : '' }}>{{ $estado }}</option>
                                 @endforeach
                                 </select>
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- Seção 4: Veículo -->
                 <div class="card mt-4">
                     <div class="card-header bg-secondary text-white">
@@ -191,24 +190,32 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label for="carro" class="form-label">Modelo</label>
-                                <input type="text" name="carro" id="carro" class="form-control"
-                                       value="{{ old('carro', $hospede->veiculos->first()->modelo ?? '') }}">
+                                <label for="veiculo_modelo" class="form-label">Modelo</label>
+                                <input type="text" name="veiculo[veiculo]" id="veiculo_modelo" class="form-control"
+                                    value="{{ old('veiculo.veiculo', $hospede->veiculos->first()->veiculo ?? '') }}">
+                                @error('veiculo.veiculo')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="cor" class="form-label">Cor</label>
-                                <input type="text" name="cor" id="cor" class="form-control"
-                                       value="{{ old('cor', $hospede->veiculos->first()->cor ?? '') }}">
+                                <label for="veiculo_cor" class="form-label">Cor</label>
+                                <input type="text" name="veiculo[cor]" id="veiculo_cor" class="form-control"
+                                    value="{{ old('veiculo.cor', $hospede->veiculos->first()->cor ?? '') }}">
+                                @error('veiculo.cor')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label for="placa" class="form-label">Placa</label>
-                                <input type="text" name="placa" id="placa" class="form-control placa-mask"
-                                       value="{{ old('placa', $hospede->veiculos->first()->placa ?? '') }}">
+                                <label for="veiculo_placa" class="form-label">Placa</label>
+                                <input type="text" name="veiculo[placa]" id="veiculo_placa" class="form-control placa-mask"
+                                    value="{{ old('veiculo.placa', $hospede->veiculos->first()->placa ?? '') }}">
+                                @error('veiculo.placa')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
                 </div>
-
                 <!-- Seção 5: Acompanhantes -->
                 <div class="card mt-4">
                     <div class="card-header bg-secondary text-white">

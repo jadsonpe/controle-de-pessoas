@@ -43,11 +43,11 @@
             </p>
             <ul>
               <li><i class="bi bi-check-circle"></i> <span>Registro de entrada e saída.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Relatórios sobre os acessos.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Relatórios de acessos.</span></li>
               <li><i class="bi bi-check-circle"></i> <span>Cadastro de unidades.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Cadastro de funcionários.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Registro do consumo de energia.</span></li>
               <li><i class="bi bi-check-circle"></i> <span>Cadastro de visitantes.</span></li>
-              <li><i class="bi bi-check-circle"></i> <span>Cadastro de itens.</span></li>
+              <li><i class="bi bi-check-circle"></i> <span>Cadastro de veiculos.</span></li>
             </ul>
             <a href="/#contact" class="read-more"><span>Contate-nos</span><i class="bi bi-arrow-right"></i></a>
           </div>
@@ -80,13 +80,13 @@
           <div class="col-lg-4 col-md-6 card" data-aos="fade-up" data-aos-delay="300">
             <span>03</span>
             <h4>Cadastro de unidades</h4>
-            <p>Cadastre suas unidades/imoveis/locais de trabalho</p>
+            <p>Cadastre suas unidades/apartamentos/locais de trabalho</p>
           </div><!-- End Card Item -->
 
           <div class="col-lg-4 col-md-6 card" data-aos="fade-up" data-aos-delay="400">
             <span>04</span>
-            <h4>Cadastro de funcionários</h4>
-            <p>Cadastre os seus funcionários e obtenha os relatórios de entrada e saída deles.</p>
+            <h4>Consumo de Energia</h4>
+            <p>Cadastre o consumo de energia dos hospedes/visitantes na entrada e saída deles.</p>
           </div><!-- End Card Item -->
 
           <div class="col-lg-4 col-md-6 card" data-aos="fade-up" data-aos-delay="400">
@@ -97,8 +97,8 @@
 
           <div class="col-lg-4 col-md-6 card" data-aos="fade-up" data-aos-delay="600">
             <span>06</span>
-            <h4>Cadastro de itens</h4>
-            <p>Cadastre os itens, produtos, móveis ou serviços disponiveis para acompanhamento</p>
+            <h4>Cadastro de Veiculos</h4>
+            <p>Cadastre o veiculo de cada hospedes para controle de vagas</p>
           </div><!-- End Card Item -->
 
         </div>
@@ -182,7 +182,7 @@
                 <i class="bi bi-activity"></i>
               </div>
               {{-- <a href="#" class="stretched-link"> --}}
-                <h3>Cadastros de Pessoas e Unidades</h3>
+                <h3>Cadastros de Hospedes e Apartamentos/Unidades Habitacionais</h3>
               {{-- </a> --}}
               {{-- <p>Provident nihil minus qui consequatur non omnis maiores. Eos accusantium minus dolores iure perferendis tempore et consequatur.</p> --}}
             </div>
@@ -206,7 +206,7 @@
                 <i class="bi bi-easel"></i>
               </div>
               {{-- <a href="#" class="stretched-link"> --}}
-                <h3>Gestão de Funcionários</h3>
+                <h3>Gestão de Hospedes</h3>
               {{-- </a> --}}
               {{-- <p>Ut excepturi voluptatem nisi sed. Quidem fuga consequatur. Minus ea aut. Vel qui id voluptas adipisci eos earum corrupti.</p> --}}
             </div>
@@ -433,11 +433,11 @@
               <h3>Plano Premium</h3>
               <h4><sup>R$</sup>100<span> / mês</span></h4>
               <ul>
-                <li><i class="bi bi-check"></i> <span>Cadastro de Visitantes e Funcionários</span></li>
-                <li><i class="bi bi-check"></i> <span>Registro de Acesso de Visitantes e Funcionários com foto</span></li>
-                <li><i class="bi bi-check"></i> <span>Relatório de Acessos dos Visitantes e Funcionários</span></li>
-                <li><i class="bi bi-check"></i> <span>Cadastro Opcional de Produtos/Móveis/Itens</span></li>
-                <li><i class="bi bi-check"></i> <span>Suporte 24h</span></li>
+                <li><i class="bi bi-check"></i> <span>Cadastro de Hospedes e acompanhantes com foto</span></li>
+                <li><i class="bi bi-check"></i> <span>Cadastro de Apartamentos/Unidades Habitacionais</span></li>
+                <li><i class="bi bi-check"></i> <span>Relatório de Consumo de Energia por Hospede</span></li>
+                <li><i class="bi bi-check"></i> <span>Relatório de Entrada e Saída</span></li>
+                <li><i class="bi bi-check"></i> <span>Suporte em horário comercial</span></li>
               </ul>
               <div class="text-center"><a href="https://wa.me/5581996581977?text=Gostaria%20de%20comprar%20o%20plano%20Premium%20de%20Controle%20de%20Acesso&app_absent=1" target="_blank" class="buy-btn">Compre Agora</a></div>
             </div>

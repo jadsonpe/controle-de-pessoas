@@ -11,7 +11,7 @@ class Veiculo extends Model
 
     protected $fillable = [
         'hospede_id',
-        'carro',
+        'veiculo',
         'cor',
         'placa',
     ];

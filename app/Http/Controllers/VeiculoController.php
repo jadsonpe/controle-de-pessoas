@@ -10,7 +10,7 @@ class VeiculoController extends Controller
 {
     public function index()
     {
-        $veiculos = Veiculo::all();
+        $veiculos = Veiculo::paginate(10);
         $hospedes = Hospede::all();
         return view('veiculos.index', compact('veiculos', 'hospedes'));
     }
@@ -25,7 +25,7 @@ class VeiculoController extends Controller
     {
         $request->validate([
             'hospede_id' => 'required|exists:hospedes,id',
-            'carro' => 'required',
+            'veiculo' => 'required',
             'placa' => 'required|unique:veiculos,placa',
         ]);
 
@@ -42,7 +42,7 @@ class VeiculoController extends Controller
     public function update(Request $request, Veiculo $veiculo)
     {
         $request->validate([
-            'carro' => 'required',
+            'veiculo' => 'required',
             'placa' => 'required|unique:veiculos,placa,' . $veiculo->id,
         ]);
 

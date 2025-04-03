@@ -32,6 +32,7 @@ class Hospede extends Model
         'telefone_comercial',
         'data_entrada',
         'data_saida',
+        'data_nascimento',
         'foto',
     ];
 

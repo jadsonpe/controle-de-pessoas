@@ -40,7 +40,7 @@
             <label for="veiculo_id" class="form-label">Veículo</label>
             <select name="veiculo_id[]" id="veiculo_id" class="form-control" multiple>
                 @foreach($veiculos as $veiculo)
-                    <option value="{{ $veiculo->id }}">{{ $veiculo->placa }} - {{ $veiculo->carro }}</option>
+                    <option value="{{ $veiculo->id }}">{{ $veiculo->placa }} - {{ $veiculo->veiculo }}</option>
                 @endforeach
             </select>
         </div>

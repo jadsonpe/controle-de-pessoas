@@ -21,8 +21,8 @@
         </div>
 
         <div class="mb-3">
-            <label for="carro" class="form-label">Carro</label>
-            <input type="text" name="carro" id="carro" class="form-control" value="{{ $veiculo->carro }}" required>
+            <label for="veiculo" class="form-label">Veiculo</label>
+            <input type="text" name="veiculo" id="veiculo" class="form-control" value="{{ $veiculo->veiculo }}" required>
         </div>
 
         <div class="mb-3">

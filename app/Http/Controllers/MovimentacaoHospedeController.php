@@ -15,7 +15,8 @@ class MovimentacaoHospedeController extends Controller
     public function index()
     {
         // Recuperar todas as movimentações com hóspede e apartamento associados
-        $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])->get();
+        // $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])->get();
+        $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])->paginate(10);
 
         // Passar as movimentações para a view
         return view('movimentacoes.index', compact('movimentacoes'));
@@ -30,21 +31,63 @@ class MovimentacaoHospedeController extends Controller
         return view('movimentacoes.create', compact('hospedes', 'apartamentos'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
+    {
+        logger()->info('Dados recebidos:', $request->all());
+        $request->validate([
+            'hospede_id' => 'required|exists:hospedes,id',
+            'apartamento_id' => 'required|exists:apartamentos,id',
+            'data_entrada' => 'required|date',
+            'data_saida' => [
+                'nullable',
+                'date',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value && strtotime($value) <= strtotime($request->data_entrada)) {
+                        $fail("A data de saída deve ser posterior à data de entrada");
+                    }
+                }
+            ],
+        ], [
+            'data_saida.after' => 'A data de saída deve ser posterior à data de entrada'
+        ]);
+
+        // Cria a movimentação
+        $movimentacao = MovimentacaoHospede::create($request->all());
+
+        // Se tem data de saída, atualiza o hóspede
+        if ($request->filled('data_saida')) {
+            Hospede::where('id', $request->hospede_id)
+                ->update(['data_saida' => $request->data_saida]);
+        }
+
+        return redirect()->route('movimentacoes.index')
+            ->with('success', 'Movimentação registrada com sucesso!');
+    }
+
+    public function update(Request $request, $id)
     {
         $request->validate([
             'hospede_id' => 'required|exists:hospedes,id',
             'apartamento_id' => 'required|exists:apartamentos,id',
             'data_entrada' => 'required|date',
-            'data_saida' => 'nullable|date|after:data_entrada',
+            'data_saida' => 'nullable|date|after_or_equal:data_entrada',
         ]);
-    
-        MovimentacaoHospede::create($request->all());
-    
-        return redirect()->route('movimentacoes.index')->with('success', 'Movimentação registrada com sucesso!');
+
+        $movimentacao = MovimentacaoHospede::findOrFail($id);
+        $movimentacao->update($request->all());
+
+        // Atualiza o hóspede
+        if ($request->filled('data_saida')) {
+            Hospede::where('id', $request->hospede_id)
+                ->update(['data_saida' => $request->data_saida]);
+        } else {
+            // Se a data de saída foi removida
+            Hospede::where('id', $request->hospede_id)
+                ->update(['data_saida' => null]);
+        }
+
+        return redirect()->route('movimentacoes.index')
+            ->with('success', 'Movimentação atualizada com sucesso!');
     }
     
     /**
@@ -66,36 +109,7 @@ class MovimentacaoHospedeController extends Controller
         // Passar para a view os dados necessários
         return view('movimentacoes.edit', compact('movimentacao', 'hospedes', 'apartamentos'));
     }
-    
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        // Validar os dados
-        $request->validate([
-            'hospede_id' => 'required|exists:hospedes,id',
-            'apartamento_id' => 'required|exists:apartamentos,id',
-            'data_entrada' => 'required|date',
-            'data_saida' => 'nullable|date|after_or_equal:data_entrada',
-        ]);
-    
-        // Obter a movimentação
-        $movimentacao = MovimentacaoHospede::findOrFail($id);
-    
-        // Atualizar a movimentação
-        $movimentacao->update([
-            'hospede_id' => $request->hospede_id,
-            'apartamento_id' => $request->apartamento_id,
-            'data_entrada' => $request->data_entrada,
-            'data_saida' => $request->data_saida,
-        ]);
-    
-        // Redirecionar com mensagem de sucesso
-        return redirect()->route('movimentacoes.index')->with('success', 'Movimentação atualizada com sucesso!');
-    }
-    
+        
 
     /**
      * Remove the specified resource from storage.

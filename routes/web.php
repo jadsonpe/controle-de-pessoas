@@ -8,65 +8,125 @@ use App\Http\Controllers\VeiculoController;
 use App\Http\Controllers\AcompanhanteController;
 use App\Http\Controllers\LeituraEnergiaController;
 use App\Http\Controllers\MovimentacaoHospedeController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 
-// Route::middleware(['auth'])->group(function () {
-    // Dashboard
-    
-    
-    // Rota para administradores
-    // Route::middleware(['role:administrador'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::resource('apartamentos', ApartamentoController::class);
-        Route::resource('veiculos', VeiculoController::class);
-        Route::resource('acompanhantes', AcompanhanteController::class);
-        Route::resource('leituras-energia', LeituraEnergiaController::class);
-        
-        Route::resource('hospedes', HospedeController::class);
-        //Route::get('/hospedes/registro', [HospedeController::class, 'create'])->name('hospedes.registro');
-        //Route::post('/hospedes/registro', [HospedeController::class, 'store'])->name('hospedes.store');
-
-        Route::resource('movimentacoes', MovimentacaoHospedeController::class);
-        // Funções adicionais para relatórios, usuários e registros
-        Route::get('relatorios', [DashboardController::class, 'relatorios'])->name('relatorios');
-        Route::get('usuarios', [DashboardController::class, 'usuarios'])->name('usuarios');
-    // });
-        // Route::get('leituras-energia/ultima-leitura/{apartamento}', [LeituraEnergiaController::class, 'ultimaLeitura']);
-        Route::get('/leituras-energia/ultima-leitura/{apartamento}', [LeituraEnergiaController::class, 'ultimaLeitura']);
-    // Rota para porteiros
-    // // Route::middleware(['role:porteiro'])->group(function () {
-    //     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.porteiro');
-    //     Route::get('hospedes/ativos', [HospedeController::class, 'ativos'])->name('hospedes.ativos');
-    // });
-// });
-
-
-// use Illuminate\Support\Facades\Route;
-// use App\Http\Controllers\AuthController;
-// use App\Http\Controllers\CondominioController;
-// use App\Http\Controllers\ApartamentoController;
-// use App\Http\Controllers\DashboardController;
-
-// Route::get('/', function () {
-//     return redirect()->route('condominios.index');
-// });
-
-// Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth');
-
+/*
+|--------------------------------------------------------------------------
+| Rotas Públicas
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('day.index');
 });
 
-// Route::get('/portifolio', function () {
-//     return view('day.portifolio-detail');
-// });
+/*
+|--------------------------------------------------------------------------
+| Rotas de Autenticação (Laravel Breeze)
+|--------------------------------------------------------------------------
+*/
 
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware('auth');
+require __DIR__.'/auth.php';
 
+/*
+|--------------------------------------------------------------------------
+| Rotas Autenticadas
+|--------------------------------------------------------------------------
+*/
 
-// // Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-// // Route::post('/login', [AuthController::class, 'login'])->name('login.process');
-// // Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::middleware(['auth'])->group(function () {
+    // Dashboard comum para todos usuários autenticados
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+        ->name('dashboard');
 
+    /*
+    |--------------------------------------------------------------------------
+    | Rotas de Administrador (Acesso Total)
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['can:admin-access'])->group(function () {
+        // Gestão de Apartamentos
+        Route::resource('apartamentos', ApartamentoController::class);
+        
+        // Gestão de Veículos
+        Route::resource('veiculos', VeiculoController::class);
+        
+        // Gestão de Acompanhantes
+        Route::resource('acompanhantes', AcompanhanteController::class);
+        
+        // Leituras de Energia
+        Route::resource('leituras-energia', LeituraEnergiaController::class);
+        Route::get('/leituras-energia/ultima-leitura/{apartamento}', 
+            [LeituraEnergiaController::class, 'ultimaLeitura'])
+            ->name('leituras-energia.ultima-leitura');
+        
+        // Gestão de Hóspedes
+        Route::resource('hospedes', HospedeController::class);
+        
+        // Movimentações de Hóspedes
+        Route::resource('movimentacoes', MovimentacaoHospedeController::class);
+        
+        // Relatórios
+        Route::get('relatorios', [DashboardController::class, 'relatorios'])
+            ->name('relatorios');
+        
+        // Gestão de Usuários
+        Route::middleware(['auth', 'verified'])->group(function () {
+            // Rotas de usuários
+            Route::get('usuarios', [UserController::class, 'index'])
+                ->name('usuarios.index');
+            Route::get('usuarios/create', [UserController::class, 'create'])
+                ->name('usuarios.create');
+            Route::post('usuarios', [UserController::class, 'store'])
+                ->name('usuarios.store');
+            Route::get('usuarios/{user}', [UserController::class, 'show'])
+                ->name('usuarios.show');
+            Route::get('usuarios/{user}/edit', [UserController::class, 'edit'])
+                ->name('usuarios.edit');
+            Route::put('usuarios/{user}', [UserController::class, 'update'])
+                ->name('usuarios.update');
+            Route::delete('usuarios/{user}', [UserController::class, 'destroy'])
+                ->name('usuarios.destroy');
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rotas Específicas para Porteiros
+    |--------------------------------------------------------------------------
+    */
+    Route::middleware(['can:porteiro-access'])->group(function () {
+        // Lista de Hóspedes Ativos
+        Route::get('hospedes/ativos', [HospedeController::class, 'ativos'])
+            ->name('hospedes.ativos');
+            
+        // Registro de Hóspedes
+        Route::post('hospedes/registrar', [HospedeController::class, 'store'])
+            ->name('hospedes.registrar');
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Rotas de Perfil (Acessíveis por Todos Usuários Autenticados)
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('profile.destroy');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Rotas de API (Opcional)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    // Rotas de API aqui, se necessário
+});
+// Rotas de autenticação (geradas pelo Laravel Breeze)
+// require __DIR__.'/auth.php';    

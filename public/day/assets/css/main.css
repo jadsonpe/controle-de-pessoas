@@ -78,13 +78,21 @@ a:hover {
 }
 
 h1,
-h2,
+/* h2, */
 h3,
 h4,
 h5,
 h6 {
+  /* color: var(--heading-color); */
+  color: #ffffff;
+  font-family: var(--heading-font);
+}
+
+.card-header {
+  background-color: #0d6efd;
   color: var(--heading-color);
   font-family: var(--heading-font);
+  font-weight: 700;
 }
 
 /* PHP Email Form Messages

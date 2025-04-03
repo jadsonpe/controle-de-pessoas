@@ -10,7 +10,7 @@ class AcompanhanteController extends Controller
 {
     public function index()
     {
-        $acompanhantes = Acompanhante::with('hospede')->get();
+        $acompanhantes = Acompanhante::with('hospede')->paginate(10);
         return view('acompanhantes.index', compact('acompanhantes'));
     }
 

@@ -14,14 +14,49 @@ use Illuminate\Http\Request;
 
 class HospedeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $hospedes = Hospede::with(['apartamento', 'acompanhantes'])
-                      ->orderBy('created_at', 'desc')
-                      ->paginate(10);
-        $acompanhantes = Acompanhante::all();
-        return view('hospedes.index', compact('hospedes', 'acompanhantes'));
+        $validated = $request->validate([
+            'search' => 'nullable|string',
+            'sort' => 'nullable|in:nome,apartamento,data_entrada,data_saida',
+            'direction' => 'nullable|in:asc,desc',
+            'ativos' => 'nullable|boolean'
+        ]);
+    
+        $query = Hospede::with(['apartamento', 'acompanhantes']);
+    
+        // Filtro de busca
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nome', 'like', "%{$request->search}%")
+                  ->orWhereHas('apartamento', function($q) use ($request) {
+                      $q->where('numero', 'like', "%{$request->search}%");
+                  });
+            });
+        }
+    
+        // Filtro de ativos
+        if ($request->boolean('ativos')) {
+            $query->whereNull('data_saida');
+        }
+    
+        // Ordenação
+        $sort = $validated['sort'] ?? 'nome';
+        $direction = $validated['direction'] ?? 'asc';
+    
+        if ($sort === 'apartamento') {
+            $query->leftJoin('apartamentos', 'hospedes.apartamento_id', '=', 'apartamentos.id')
+                  ->orderBy('apartamentos.numero', $direction)
+                  ->select('hospedes.*');
+        } else {
+            $query->orderBy($sort, $direction);
+        }
+    
+        $hospedes = $query->paginate(10)->appends($request->query());
+    
+        return view('hospedes.index', compact('hospedes'));
     }
+    
     public function create()
     {
         $apartamentos = Apartamento::all();
@@ -30,7 +65,6 @@ class HospedeController extends Controller
     
     public function store(Request $request)
     {
-        // Validação dos dados
         $validatedData = $request->validate([
             'nome' => 'required|string|max:255',
             'apartamento_id' => 'required|exists:apartamentos,id',
@@ -43,12 +77,11 @@ class HospedeController extends Controller
             'foto_base64' => 'nullable|string',
             'acompanhantes.*.nome' => 'nullable|string|max:255',
             'acompanhantes.*.documento' => 'nullable|string|max:255',
-            'carro' => 'nullable|string|max:100',
+            'veiculo' => 'nullable|string|max:100',
             'cor' => 'nullable|string|max:50',
             'placa' => 'nullable|string|max:10',
         ]);
     
-        // Tratamento da foto
         $fotoPath = null;
         
         // Caso 1: Upload de arquivo
@@ -75,7 +108,6 @@ class HospedeController extends Controller
             }
         }
     
-        // Dados do hóspede
         $hospedeData = [
             'apartamento_id' => $validatedData['apartamento_id'],
             'nome' => $validatedData['nome'],
@@ -104,7 +136,7 @@ class HospedeController extends Controller
     
         // Dados do veículo
         $veiculoData = [
-            'modelo' => $validatedData['carro'] ?? null,
+            'modelo' => $validatedData['veiculo'] ?? null,
             'cor' => $validatedData['cor'] ?? null,
             'placa' => $validatedData['placa'] ?? null,
         ];
@@ -150,17 +182,19 @@ class HospedeController extends Controller
                 ->with('error', 'Erro ao cadastrar hóspede: ' . $e->getMessage());
         }
     }
-    
     public function edit(Hospede $hospede)
     {
-        $hospedes = Hospede::all();
-        $acompanhantes = Acompanhante::all();
+        $hospede->load(['veiculos', 'acompanhantes', 'apartamento']);
+        
         $apartamentos = Apartamento::all();
+        $acompanhantes = Acompanhante::all();
+        
         return view('hospedes.edit', compact('hospede', 'acompanhantes', 'apartamentos'));
     }
-
+    
     public function update(Request $request, Hospede $hospede)
     {
+         //dd($request->all());
         // Validação dos dados
         $validatedData = $request->validate([
             'nome' => 'required|string|max:255',
@@ -168,56 +202,51 @@ class HospedeController extends Controller
             'celular' => 'required|string|max:20',
             'data_entrada' => 'required|date',
             'data_saida' => 'nullable|date|after_or_equal:data_entrada',
+            'data_nascimento' => 'nullable|date_format:Y-m-d',
             'cpf' => 'nullable|string|max:14',
             'email' => 'nullable|email|max:255',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'acompanhantes.*.nome' => 'nullable|string|max:255',
             'acompanhantes.*.documento' => 'nullable|string|max:255',
-            'carro' => 'nullable|string|max:100',
-            'cor' => 'nullable|string|max:50',
-            'placa' => 'nullable|string|max:10',
+            'veiculo.veiculo' => 'nullable|string|max:100',
+            'veiculo.cor' => 'nullable|string|max:50',
+            'veiculo.placa' => 'nullable|string|max:10|unique:veiculos,placa,' . 
+                              ($hospede->veiculos->first()->id ?? 'NULL') . ',id,hospede_id,' . $hospede->id,
         ]);
     
-    // Tratamento da foto
-    $fotoPath = $hospede->foto;
-    
-    // Caso 1: Remoção da foto
-    if ($request->input('remove_foto') == '1') {
-        if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
-            Storage::disk('public')->delete($fotoPath);
-        }
-        $fotoPath = null;
-    }
-    // Caso 2: Upload de arquivo
-    elseif ($request->hasFile('foto')) {
-        // Remove a foto antiga se existir
-        if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
-            Storage::disk('public')->delete($fotoPath);
-        }
+        // Tratamento da foto
+        $fotoPath = $hospede->foto;
         
-        // Armazena a nova foto
-        $fotoPath = $request->file('foto')->store('hospedes_fotos', 'public');
-    }
-    // Caso 3: Foto da webcam (base64)
-    elseif ($request->filled('foto_base64')) {
-        try {
-            // Remove a foto antiga se existir
+        if ($request->input('remove_foto') == '1') {
             if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
                 Storage::disk('public')->delete($fotoPath);
             }
-            
-            $imageData = $request->input('foto_base64');
-            $imageData = str_replace('data:image/jpeg;base64,', '', $imageData);
-            $imageData = str_replace(' ', '+', $imageData);
-            $decodedImage = base64_decode($imageData);
-            
-            $fileName = 'webcam_' . time() . '_' . Str::random(10) . '.jpg';
-            Storage::disk('public')->put('hospedes_fotos/' . $fileName, $decodedImage);
-            $fotoPath = 'hospedes_fotos/' . $fileName;
-        } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Erro ao processar a foto: ' . $e->getMessage());
+            $fotoPath = null;
         }
-    }
+        elseif ($request->hasFile('foto')) {
+            if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
+                Storage::disk('public')->delete($fotoPath);
+            }
+            $fotoPath = $request->file('foto')->store('hospedes_fotos', 'public');
+        }
+        elseif ($request->filled('foto_base64')) {
+            try {
+                if ($fotoPath && Storage::disk('public')->exists($fotoPath)) {
+                    Storage::disk('public')->delete($fotoPath);
+                }
+                
+                $imageData = $request->input('foto_base64');
+                $imageData = str_replace('data:image/jpeg;base64,', '', $imageData);
+                $imageData = str_replace(' ', '+', $imageData);
+                $decodedImage = base64_decode($imageData);
+                
+                $fileName = 'webcam_' . time() . '_' . Str::random(10) . '.jpg';
+                Storage::disk('public')->put('hospedes_fotos/' . $fileName, $decodedImage);
+                $fotoPath = 'hospedes_fotos/' . $fileName;
+            } catch (\Exception $e) {
+                return back()->withInput()->with('error', 'Erro ao processar a foto: ' . $e->getMessage());
+            }
+        }
     
         // Dados do hóspede
         $hospedeData = [
@@ -243,28 +272,31 @@ class HospedeController extends Controller
             'telefone_comercial' => $request->input('telefone_comercial'),
             'data_entrada' => $validatedData['data_entrada'],
             'data_saida' => $validatedData['data_saida'] ?? null,
+            'data_nascimento' => $validatedData['data_nascimento'] ?? null,
             'foto' => $fotoPath,
         ];
     
-        // Dados do veículo
-        $veiculoData = [
-            'modelo' => $validatedData['carro'] ?? null,
-            'cor' => $validatedData['cor'] ?? null,
-            'placa' => $validatedData['placa'] ?? null,
-        ];
-    
-        // Atualizar o hóspede e relacionamentos
         try {
             DB::beginTransaction();
-    
+        // Debug (remova após teste)
+        logger()->info('Data nascimento:', ['data' => $hospedeData['data_nascimento']]);
             // Atualizar hóspede
             $hospede->update($hospedeData);
     
-            // Atualizar veículo
-            if ($hospede->veiculos->isNotEmpty()) {
-                $hospede->veiculos()->first()->update($veiculoData);
-            } elseif (!empty(array_filter($veiculoData))) {
-                $hospede->veiculos()->create($veiculoData);
+            // Lógica para veículos
+            $veiculoData = $request->veiculo ?? [];
+            
+            if (!empty(array_filter($veiculoData))) {
+                if ($hospede->veiculos->isNotEmpty()) {
+                    // Atualiza veículo existente
+                    $hospede->veiculos()->first()->update($veiculoData);
+                } else {
+                    // Cria novo veículo
+                    $hospede->veiculos()->create($veiculoData);
+                }
+            } elseif ($hospede->veiculos->isNotEmpty()) {
+                // Remove veículo se todos campos estiverem vazios
+                $hospede->veiculos()->first()->delete();
             }
     
             // Atualizar acompanhantes (remove todos e recria)
