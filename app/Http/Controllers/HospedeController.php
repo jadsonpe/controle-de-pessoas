@@ -52,7 +52,7 @@ class HospedeController extends Controller
             $query->orderBy($sort, $direction);
         }
     
-        $hospedes = $query->paginate(10)->appends($request->query());
+        $hospedes = $query->paginate(20)->appends($request->query());
     
         return view('hospedes.index', compact('hospedes'));
     }
@@ -194,8 +194,6 @@ class HospedeController extends Controller
     
     public function update(Request $request, Hospede $hospede)
     {
-         //dd($request->all());
-        // Validação dos dados
         $validatedData = $request->validate([
             'nome' => 'required|string|max:255',
             'apartamento_id' => 'required|exists:apartamentos,id',
@@ -206,7 +204,8 @@ class HospedeController extends Controller
             'cpf' => 'nullable|string|max:14',
             'email' => 'nullable|email|max:255',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'acompanhantes.*.nome' => 'nullable|string|max:255',
+            'acompanhantes.*.id' => 'nullable|exists:acompanhantes,id,hospede_id,'.$hospede->id,
+            'acompanhantes.*.nome' => 'required_with:acompanhantes|string|max:255',
             'acompanhantes.*.documento' => 'nullable|string|max:255',
             'veiculo.veiculo' => 'nullable|string|max:100',
             'veiculo.cor' => 'nullable|string|max:50',
@@ -278,8 +277,7 @@ class HospedeController extends Controller
     
         try {
             DB::beginTransaction();
-        // Debug (remova após teste)
-        logger()->info('Data nascimento:', ['data' => $hospedeData['data_nascimento']]);
+    
             // Atualizar hóspede
             $hospede->update($hospedeData);
     
@@ -299,38 +297,53 @@ class HospedeController extends Controller
                 $hospede->veiculos()->first()->delete();
             }
     
-            // Atualizar acompanhantes (remove todos e recria)
-            $hospede->acompanhantes()->delete();
-            if ($request->has('acompanhantes')) {
-                foreach ($request->input('acompanhantes') as $acompanhante) {
-                    if (!empty($acompanhante['nome'])) {
-                        $hospede->acompanhantes()->create([
-                            'nome' => $acompanhante['nome'],
-                            'documento' => $acompanhante['documento'] ?? null
+            // Lógica para acompanhantes
+            $currentAcompanhantes = $hospede->acompanhantes->keyBy('id');
+            $submittedAcompanhantes = collect($request->input('acompanhantes', []));
+            $keptAcompanhantesIds = [];
+    
+            foreach ($submittedAcompanhantes as $acompanhanteData) {
+                if (!empty($acompanhanteData['nome'])) {
+                    if (!empty($acompanhanteData['id']) && $currentAcompanhantes->has($acompanhanteData['id'])) {
+                        // Atualiza existente
+                        $currentAcompanhantes->get($acompanhanteData['id'])->update([
+                            'nome' => $acompanhanteData['nome'],
+                            'documento' => $acompanhanteData['documento'] ?? null
                         ]);
+                        $keptAcompanhantesIds[] = $acompanhanteData['id'];
+                    } else {
+                        // Cria novo
+                        $newAcompanhante = $hospede->acompanhantes()->create([
+                            'nome' => $acompanhanteData['nome'],
+                            'documento' => $acompanhanteData['documento'] ?? null
+                        ]);
+                        $keptAcompanhantesIds[] = $newAcompanhante->id;
                     }
                 }
             }
+    
+            // Remove acompanhantes não enviados no formulário
+            $hospede->acompanhantes()
+                    ->whereNotIn('id', $keptAcompanhantesIds)
+                    ->delete();
     
             DB::commit();
     
             return redirect()->route('hospedes.index')
                 ->with('success', 'Hóspede atualizado com sucesso!');
-    
         } catch (\Exception $e) {
             DB::rollBack();
-            
             return back()->withInput()
                 ->with('error', 'Erro ao atualizar hóspede: ' . $e->getMessage());
         }
     }
+
     public function destroy(Hospede $hospede)
     {
         $hospede->delete();
         return redirect()->route('hospedes.index');
     }
 
-    // Ação específica para mostrar hóspedes ativos
     public function ativos()
     {
         $hospedesAtivos = Hospede::whereNull('data_saida')->get();

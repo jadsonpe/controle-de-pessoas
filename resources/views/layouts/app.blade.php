@@ -214,6 +214,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/day/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="/day/assets/vendor/aos/aos.js"></script>
     <script src="/day/assets/js/main.js"></script>

@@ -12,14 +12,32 @@ class MovimentacaoHospedeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Recuperar todas as movimentações com hóspede e apartamento associados
-        // $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])->get();
-        $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])->paginate(10);
-
-        // Passar as movimentações para a view
-        return view('movimentacoes.index', compact('movimentacoes'));
+        $sortField = $request->get('sort', 'data_entrada');
+        $sortDirection = $request->get('direction', 'desc');
+    
+        // Valida os campos de ordenação para prevenir SQL injection
+        $validSortFields = ['data_entrada', 'data_saida', 'hospedes.nome', 'apartamentos.numero'];
+        $sortField = in_array($sortField, $validSortFields) ? $sortField : 'data_entrada';
+        
+        // Verifica se o campo de ordenação é um relacionamento
+        if (str_contains($sortField, '.')) {
+            $relation = explode('.', $sortField)[0];
+            $field = explode('.', $sortField)[1];
+            
+            $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])
+                ->join($relation, "{$relation}.id", '=', "movimentacao_hospedes.{$relation}_id")
+                ->orderBy("{$relation}.{$field}", $sortDirection)
+                ->select('movimentacao_hospedes.*')
+                ->paginate(20);
+        } else {
+            $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])
+                ->orderBy($sortField, $sortDirection)
+                ->paginate(20);
+        }
+    
+        return view('movimentacoes.index', compact('movimentacoes', 'sortField', 'sortDirection'));
     }
     /**
      * Show the form for creating a new resource.

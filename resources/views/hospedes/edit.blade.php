@@ -224,21 +224,29 @@
                     <div class="card-body">
                         <div id="acompanhantes-container">
                             @php
-                                $oldAcompanhantes = old('acompanhantes', $hospede->acompanhantes->toArray());
+                                $oldAcompanhantes = old('acompanhantes', $hospede->acompanhantes->map(function($item) {
+                                    return [
+                                        'id' => $item->id,
+                                        'nome' => $item->nome,
+                                        'documento' => $item->documento
+                                    ];
+                                })->toArray());
                             @endphp
                             
                             @foreach($oldAcompanhantes as $index => $acompanhante)
                                 <div class="acompanhante-group mb-3 border p-3 rounded">
+                                    <input type="hidden" name="acompanhantes[{{ $index }}][id]" value="{{ $acompanhante['id'] ?? '' }}">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <label class="form-label">Nome</label>
                                             <input type="text" name="acompanhantes[{{ $index }}][nome]" 
-                                                   class="form-control" value="{{ $acompanhante['nome'] ?? '' }}">
+                                                class="form-control" value="{{ $acompanhante['nome'] ?? '' }}"
+                                                required>
                                         </div>
                                         <div class="col-md-5">
                                             <label class="form-label">Documento</label>
                                             <input type="text" name="acompanhantes[{{ $index }}][documento]" 
-                                                   class="form-control" value="{{ $acompanhante['documento'] ?? '' }}">
+                                                class="form-control" value="{{ $acompanhante['documento'] ?? '' }}">
                                         </div>
                                         <div class="col-md-1 d-flex align-items-end">
                                             <button type="button" class="btn btn-danger remove-acompanhante">
@@ -269,19 +277,6 @@
                         <label for="data_saida" class="form-label">Data de Saída (Opcional)</label>
                         <input type="datetime-local" name="data_saida" id="data_saida" class="form-control"
                         value="{{ old('data_saida', $hospede->data_saida ? \Carbon\Carbon::parse($hospede->data_saida)->format('Y-m-d\TH:i') : '') }}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Foto do Hóspede</label>
-                        <div class="d-flex flex-column">
-                            @if($hospede->foto)
-                                <img src="{{ asset('storage/' . $hospede->foto) }}" alt="Foto atual" class="img-thumbnail mb-2" style="max-width: 150px;">
-                            @endif
-                            <input type="file" name="foto" id="foto" class="form-control" accept="image/*">
-                            <small class="text-muted">Deixe em branco para manter a foto atual</small>
-                        </div>
-                        @error('foto')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
                     </div>
                 </div>
 
@@ -372,26 +367,30 @@
         // Máscaras para os campos
         $('.cpf-mask').mask('000.000.000-00');
         $('.phone-mask').mask('(00) 00000-0000');
-        $('.placa-mask').mask('AAA-0000', {
+        $('.placa-mask').mask('AAA-0A00', {
             translation: {
-                'A': { pattern: /[A-Za-z]/ }
+                'A': { pattern: /[A-Za-z]/ },
+                '0': { pattern: /[0-9]/ }
             }
         });
 
-        // Adicionar acompanhante
-        let acompanhanteIndex = {{ count(old('acompanhantes', $hospede->acompanhantes)) }};
+        // Controle de acompanhantes
+        let acompanhanteIndex = {{ count($oldAcompanhantes) > 0 ? count($oldAcompanhantes) : 0 }};
         
-        $('#add-acompanhante').click(function() {
+        $('#add-acompanhante').on('click', function() {
             let newGroup = `
                 <div class="acompanhante-group mb-3 border p-3 rounded">
+                    <input type="hidden" name="acompanhantes[${acompanhanteIndex}][id]" value="">
                     <div class="row">
                         <div class="col-md-6">
-                            <label class="form-label">Nome</label>
-                            <input type="text" name="acompanhantes[${acompanhanteIndex}][nome]" class="form-control">
+                            <label class="form-label">Nome <span class="text-danger">*</span></label>
+                            <input type="text" name="acompanhantes[${acompanhanteIndex}][nome]" 
+                                   class="form-control" required>
                         </div>
                         <div class="col-md-5">
                             <label class="form-label">Documento</label>
-                            <input type="text" name="acompanhantes[${acompanhanteIndex}][documento]" class="form-control">
+                            <input type="text" name="acompanhantes[${acompanhanteIndex}][documento]" 
+                                   class="form-control">
                         </div>
                         <div class="col-md-1 d-flex align-items-end">
                             <button type="button" class="btn btn-danger remove-acompanhante">
@@ -405,7 +404,6 @@
             acompanhanteIndex++;
         });
 
-        // Remover acompanhante
         $(document).on('click', '.remove-acompanhante', function() {
             $(this).closest('.acompanhante-group').remove();
         });
@@ -522,5 +520,41 @@
             }
         });
     });
+
+    $(document).ready(function() {
+        let acompanhanteIndex = {{ count($oldAcompanhantes) }};
+        
+        $('#add-acompanhante').click(function() {
+            let newGroup = `
+                <div class="acompanhante-group mb-3 border p-3 rounded">
+                    <input type="hidden" name="acompanhantes[${acompanhanteIndex}][id]" value="">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Nome</label>
+                            <input type="text" name="acompanhantes[${acompanhanteIndex}][nome]" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Documento</label>
+                            <input type="text" name="acompanhantes[${acompanhanteIndex}][documento]" 
+                                   class="form-control">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger remove-acompanhante">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#acompanhantes-container').append(newGroup);
+            acompanhanteIndex++;
+        });
+
+        $(document).on('click', '.remove-acompanhante', function() {
+            $(this).closest('.acompanhante-group').remove();
+        });
+    });
+
 </script>
 @endpush

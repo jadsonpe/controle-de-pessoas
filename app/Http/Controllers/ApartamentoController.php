@@ -9,7 +9,7 @@ class ApartamentoController extends Controller
 {
     public function index()
     {
-        $apartamentos = Apartamento::paginate(10);
+        $apartamentos = Apartamento::paginate(20);
         return view('apartamentos.index', compact('apartamentos'));
     }
 

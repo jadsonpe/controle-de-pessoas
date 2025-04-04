@@ -125,6 +125,67 @@
                 </div>
             </div>
         </div>
+        <!-- Adicione isso após o fechamento da div row existente -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Status dos Apartamentos</h5>
+                        <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#disponibilidadeModal">
+                            <i class="bi bi-calendar-check"></i> Verificar Disponibilidade
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            @foreach($apartamentos as $apt)
+                                @php
+                                    $ocupado = $apartamentosOcupados->contains($apt->id);
+                                @endphp
+                                <div class="col-md-3 mb-3">
+                                    <div class="card h-100 border-{{ $ocupado ? 'danger' : 'success' }}">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Apto #{{ $apt->numero }}</h5>
+                                            <p class="card-text small">{{ $apt->descricao }}</p>
+                                            <span class="badge bg-{{ $ocupado ? 'danger' : 'success' }}">
+                                                {{ $ocupado ? 'Ocupado' : 'Disponível' }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal para verificação de disponibilidade -->
+        <div class="modal fade" id="disponibilidadeModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Verificar Disponibilidade</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form action="{{ route('disponibilidade.verificar') }}" method="GET">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="data_entrada" class="form-label">Data de Entrada</label>
+                                <input type="date" class="form-control" name="data_entrada" required min="{{ date('Y-m-d') }}">
+                            </div>
+                            <div class="mb-3">
+                                <label for="data_saida" class="form-label">Data de Saída</label>
+                                <input type="date" class="form-control" name="data_saida" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                            <button type="submit" class="btn btn-primary">Verificar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection

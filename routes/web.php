@@ -39,6 +39,8 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard comum para todos usuários autenticados
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
+        Route::get('/dashboard/disponibilidade', [DashboardController::class, 'verificarDisponibilidade'])
+        ->name('disponibilidade.verificar');
 
     /*
     |--------------------------------------------------------------------------

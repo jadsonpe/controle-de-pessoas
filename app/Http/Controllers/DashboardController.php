@@ -5,20 +5,37 @@ namespace App\Http\Controllers;
 use App\Models\Hospede;
 use App\Models\LeituraEnergia;
 use App\Models\MovimentacaoHospede;
+use App\Models\Apartamento;
+use Illuminate\Support\Facades\Validator;
 
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Dados existentes
         $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])
-        ->orderBy('data_entrada', 'desc')
-        ->get();
+            ->orderBy('data_entrada', 'desc')
+            ->get();
+        
         $hospedesRecentes = Hospede::limit(10)->get();
         $leiturasRecentes = LeituraEnergia::limit(10)->get();
-
-        return view('dashboard.index', compact('hospedesRecentes', 'leiturasRecentes', 'movimentacoes'));
+    
+        // Novos dados para disponibilidade
+        $apartamentos = Apartamento::all();
+        $apartamentosOcupados = MovimentacaoHospede::whereNull('data_saida')
+            ->orWhere('data_saida', '>', now())
+            ->pluck('apartamento_id')
+            ->unique();
+    
+        return view('dashboard.index', compact(
+            'hospedesRecentes',
+            'leiturasRecentes',
+            'movimentacoes',
+            'apartamentos',
+            'apartamentosOcupados'
+        ));
     }
 
     public function relatorios()
@@ -31,5 +48,29 @@ class DashboardController extends Controller
     {
         // Gerenciamento de usuários para administradores
         return view('dashboard.usuarios');
+    }
+
+    public function verificarDisponibilidade(Request $request)
+    {
+        $request->validate([
+            'data_entrada' => 'required|date|after_or_equal:today',
+            'data_saida' => 'required|date|after:data_entrada'
+        ]);
+
+        $apartamentosOcupados = MovimentacaoHospede::where(function($query) use ($request) {
+            $query->whereNull('data_saida')
+                ->orWhere('data_saida', '>', $request->data_entrada);
+        })
+        ->where('data_entrada', '<', $request->data_saida)
+        ->pluck('apartamento_id')
+        ->unique();
+
+        $apartamentosDisponiveis = Apartamento::whereNotIn('id', $apartamentosOcupados)->get();
+
+        return view('dashboard.disponibilidade', [
+            'apartamentos' => $apartamentosDisponiveis,
+            'data_entrada' => $request->data_entrada,
+            'data_saida' => $request->data_saida
+        ]);
     }
 }

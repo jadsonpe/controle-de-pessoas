@@ -10,6 +10,7 @@ class Acompanhante extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'acompanhantes';
     protected $fillable = [
         'hospede_id',
         'nome',
