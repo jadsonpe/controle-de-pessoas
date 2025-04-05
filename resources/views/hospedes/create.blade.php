@@ -349,11 +349,6 @@
         // Máscaras para os campos
         $('.cpf-mask').mask('000.000.000-00');
         $('.phone-mask').mask('(00) 00000-0000');
-        $('.placa-mask').mask('AAA-0000', {
-            translation: {
-                'A': { pattern: /[A-Za-z]/ }
-            }
-        });
 
         // Adicionar acompanhante
         let acompanhanteIndex = {{ old('acompanhantes') ? count(old('acompanhantes')) : 1 }};

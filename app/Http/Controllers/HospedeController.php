@@ -23,8 +23,14 @@ class HospedeController extends Controller
             'ativos' => 'nullable|boolean'
         ]);
     
-        $query = Hospede::with(['apartamento', 'acompanhantes']);
-    
+        $query = Hospede::with(['apartamento', 'acompanhantes'])
+        ->when(request('ativos'), function($q) {
+            $q->where(function($query) {
+                $query->whereNull('data_saida')
+                      ->orWhere('data_saida', '>', now());
+            });
+        });
+            
         // Filtro de busca
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {

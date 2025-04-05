@@ -366,13 +366,7 @@
     $(document).ready(function() {
         // Máscaras para os campos
         $('.cpf-mask').mask('000.000.000-00');
-        $('.phone-mask').mask('(00) 00000-0000');
-        $('.placa-mask').mask('AAA-0A00', {
-            translation: {
-                'A': { pattern: /[A-Za-z]/ },
-                '0': { pattern: /[0-9]/ }
-            }
-        });
+        $('.phone-mask').mask('(00) 00000-0000');});
 
         // Controle de acompanhantes
         let acompanhanteIndex = {{ count($oldAcompanhantes) > 0 ? count($oldAcompanhantes) : 0 }};

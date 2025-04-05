@@ -20,8 +20,17 @@ class DashboardController extends Controller
             ->get();
         
         $hospedesRecentes = Hospede::limit(10)->get();
-        $leiturasRecentes = LeituraEnergia::limit(10)->get();
-    
+        $leiturasRecentes = LeituraEnergia::select('*')
+        ->whereIn('id', function($query) {
+            $query->selectRaw('MAX(id)')
+                  ->from('leituras_energia')
+                  ->groupBy('apartamento_id');
+        })
+        ->orderBy('updated_at', 'desc')
+        ->limit(10)
+        ->with('apartamento')
+        ->get();
+
         // Novos dados para disponibilidade
         $apartamentos = Apartamento::all();
         $apartamentosOcupados = MovimentacaoHospede::whereNull('data_saida')

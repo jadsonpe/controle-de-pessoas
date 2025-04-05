@@ -21,8 +21,8 @@
                             <th width="50">#</th>
                             <th>Apartamento</th>
                             <th>Hóspede Atual</th>
-                            <th class="text-end">Anterior (kWh)</th>
-                            <th class="text-end">Atual (kWh)</th>
+                            <th class="text-end">Entrada (kWh)</th>
+                            <th class="text-end">Saída (kWh)</th>
                             <th class="text-end">Consumo</th>
                             <th>Data</th>
                             <th width="120">Ações</th>
@@ -40,11 +40,10 @@
                                     <span class="text-muted">Nenhum</span>
                                 @endif
                             </td>
-                            <td class="text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_anterior, 0, ',', '.') : '0' }}</td>
-                            <td class="text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_atual, 0, ',', '.') : '0' }}</td>
+                            <td class="text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_entrada, 0, ',', '.') : '0' }}</td>
+                            <td class="text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_saida ?? '0', 0, ',', '.') : '0' }}</td>
                             <td class="text-end fw-bold">
-                                {{ $item['leitura'] ? number_format($item['leitura']->leitura_atual - $item['leitura']->leitura_anterior, 0, ',', '.') : '0' }}
-                            </td>
+                                {{ $item['leitura'] ? number_format($item['leitura']->leitura_saida - $item['leitura']->leitura_entrada, 0, ',', '.') : '0' }} kWh                            </td>
                             <td>
                                 @if($item['leitura'])
                                     {{ \Carbon\Carbon::parse($item['leitura']->data_leitura)->format('d/m/Y') }}
@@ -75,7 +74,6 @@
                         @endforelse
                     </tbody>
                 </table>
-
                 <!-- Cards para mobile -->
                 <div class="d-md-none">
                     @forelse($leituras as $index => $item)
@@ -105,17 +103,19 @@
                             
                             <div class="row g-2">
                                 <div class="col-4">
-                                    <small class="text-muted">Anterior:</small>
-                                    <p class="mb-0 text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_anterior, 0, ',', '.') : '0' }} kWh</p>
+                                    <small class="text-muted">Entrada:</small>
+                                    <p class="mb-0 text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_entrada, 0, ',', '.') : '0' }} kWh</p>
                                 </div>
                                 <div class="col-4">
-                                    <small class="text-muted">Atual:</small>
-                                    <p class="mb-0 text-end">{{ $item['leitura'] ? number_format($item['leitura']->leitura_atual, 0, ',', '.') : '0' }} kWh</p>
+                                    <small class="text-muted">Saída:</small>
+                                    <p class="mb-0 text-end">
+                                        {{ $item['leitura'] ? number_format($item['leitura']->leitura_saida ?? '0', 0, ',', '.') : '0' }} kWh
+                                    </p>
                                 </div>
                                 <div class="col-4">
                                     <small class="text-muted">Consumo:</small>
                                     <p class="mb-0 text-end fw-bold">
-                                        {{ $item['leitura'] ? number_format($item['leitura']->leitura_atual - $item['leitura']->leitura_anterior, 0, ',', '.') : '0' }} kWh
+                                        {{ number_format($item['consumo'], 0, ',', '.') }} kWh
                                     </p>
                                 </div>
                                 <div class="col-12">

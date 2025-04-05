@@ -93,15 +93,16 @@
                     </thead>
                     <tbody>
                         @forelse($hospedes as $hospede)
-                            <tr class="{{ is_null($hospede->data_saida) ? 'table-success' : '' }}">
+                        @php
+                            $isAtivo = is_null($hospede->data_saida) || \Carbon\Carbon::parse($hospede->data_saida)->isFuture();
+                        @endphp
+                            <tr class="{{ $isAtivo ? 'table-success' : '' }}">
                                 <td>{{ $loop->iteration + (($hospedes->currentPage() - 1) * $hospedes->perPage()) }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        @if(is_null($hospede->data_saida))
-                                            <span class="badge bg-success me-2"><i class="bi bi-circle-fill"></i></span>
-                                        @else
-                                            <span class="badge bg-secondary me-2"><i class="bi bi-circle-fill"></i></span>
-                                        @endif
+                                        <span class="badge bg-{{ $isAtivo ? 'success' : 'secondary' }} me-2">
+                                            <i class="bi bi-circle-fill"></i>
+                                        </span>
                                         <div>
                                             <strong>{{ $hospede->nome }}</strong>
                                             @if($hospede->celular)
