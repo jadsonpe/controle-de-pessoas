@@ -10,6 +10,7 @@ use App\Models\Apartamento;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\Request;
 
 class HospedeController extends Controller
@@ -20,17 +21,48 @@ class HospedeController extends Controller
             'search' => 'nullable|string',
             'sort' => 'nullable|in:nome,apartamento,data_entrada,data_saida',
             'direction' => 'nullable|in:asc,desc',
-            'ativos' => 'nullable|boolean'
+            'ativos' => 'nullable|boolean',
+            'chegando_breve' => 'nullable|boolean',
+            'partindo_breve' => 'nullable|boolean'
         ]);
     
-        $query = Hospede::with(['apartamento', 'acompanhantes'])
-        ->when(request('ativos'), function($q) {
-            $q->where(function($query) {
-                $query->whereNull('data_saida')
-                      ->orWhere('data_saida', '>', now());
-            });
-        });
-            
+        // Query base
+        $query = Hospede::with(['apartamento', 'acompanhantes']);
+        
+        if ($request->boolean('chegando_breve')) {
+            $query->where('data_entrada', '>', now()->toDateString()) // Data entrada no futuro
+                  ->where('data_entrada', '<=', now()->addDays(7)->toDateString()); // Próximos 7 dias
+        }
+        // Contadores para o painel de resumo
+        $countPresentes = Hospede::where('data_entrada', '<=', now()->toDateString())
+            ->where(function($q) {
+                $q->whereNull('data_saida')
+                  ->orWhere('data_saida', '>=', now()->toDateString());
+            })->count();
+    
+        $countChegandoHoje = Hospede::whereDate('data_entrada', now()->toDateString())->count();
+        $countPartindoHoje = Hospede::whereDate('data_saida', now()->toDateString())->count();
+    
+        // Aplicar filtros
+        if ($request->boolean('ativos')) {
+            $query->where('data_entrada', '<=', now()->toDateString())
+                  ->where(function($q) {
+                      $q->whereNull('data_saida')
+                        ->orWhere('data_saida', '>=', now()->toDateString());
+                  });
+        }
+    
+        if ($request->boolean('chegando_breve')) {
+            $query->where('data_entrada', '>', now()->toDateString());
+        }
+    
+        if ($request->boolean('partindo_breve')) {
+            $query->whereIn('data_saida', [
+                now()->toDateString(),
+                now()->addDay()->toDateString()
+            ]);
+        }
+
         // Filtro de busca
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
@@ -40,16 +72,11 @@ class HospedeController extends Controller
                   });
             });
         }
-    
-        // Filtro de ativos
-        if ($request->boolean('ativos')) {
-            $query->whereNull('data_saida');
-        }
-    
+
         // Ordenação
         $sort = $validated['sort'] ?? 'nome';
         $direction = $validated['direction'] ?? 'asc';
-    
+
         if ($sort === 'apartamento') {
             $query->leftJoin('apartamentos', 'hospedes.apartamento_id', '=', 'apartamentos.id')
                   ->orderBy('apartamentos.numero', $direction)
@@ -57,10 +84,15 @@ class HospedeController extends Controller
         } else {
             $query->orderBy($sort, $direction);
         }
-    
+
         $hospedes = $query->paginate(20)->appends($request->query());
-    
-        return view('hospedes.index', compact('hospedes'));
+
+        return view('hospedes.index', [
+            'hospedes' => $query->paginate(20)->appends($request->query()),
+            'countPresentes' => $countPresentes,
+            'countChegandoHoje' => $countChegandoHoje,
+            'countPartindoHoje' => $countPartindoHoje
+        ]);
     }
     
     public function create()

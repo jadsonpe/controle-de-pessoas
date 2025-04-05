@@ -26,28 +26,52 @@
                             <button class="btn btn-outline-secondary" type="submit">
                                 <i class="bi bi-search"></i> Buscar
                             </button>
-                            @if(request('search') || request('ativos'))
+                            @if(request()->anyFilled(['search', 'ativos', 'chegando_breve', 'partindo_breve']))
                                 <a href="{{ route('hospedes.index') }}" class="btn btn-outline-danger">
                                     <i class="bi bi-x-circle"></i> Limpar
                                 </a>
                             @endif
                         </div>
+                        <!-- Campos hidden para manter os filtros -->
                         <input type="hidden" name="sort" value="{{ request('sort') }}">
                         <input type="hidden" name="direction" value="{{ request('direction') }}">
+                        <input type="hidden" name="ativos" value="{{ request('ativos') }}">
+                        <input type="hidden" name="chegando_breve" value="{{ request('chegando_breve') }}">
+                        <input type="hidden" name="partindo_breve" value="{{ request('partindo_breve') }}">
                     </form>
                 </div>
                 <div class="col-md-6">
-                    <div class="d-flex justify-content-end align-items-center">
-                        <div class="form-check form-switch me-3">
-                            <input class="form-check-input" type="checkbox" id="filterAtivos" name="ativos" 
-                                   value="1" {{ request('ativos') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="filterAtivos">
-                                Mostrar apenas ativos
-                            </label>
+                    <div class="d-flex justify-content-end align-items-center flex-wrap">
+                        <div class="filtros-porteiro d-flex flex-wrap gap-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="filterAtivos" 
+                                       name="ativos" {{ request('ativos') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="filterAtivos">
+                                    Presentes
+                                </label>
+                            </div>
+                            
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="filterChegandoBreve"
+                                       name="chegando_breve" {{ request('chegando_breve') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="filterChegandoBreve">
+                                    Chegando (7 dias)
+                                </label>
+                            </div>
+                            
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="filterPartindo"
+                                       name="partindo_breve" {{ request('partindo_breve') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="filterPartindo">
+                                    Partindo
+                                </label>
+                            </div>
                         </div>
-                        <div class="legenda-status">
-                            <span class="badge bg-success me-2"><i class="bi bi-circle-fill"></i> Ativo</span>
-                            <span class="badge bg-secondary"><i class="bi bi-circle-fill"></i> Inativo</span>
+                        
+                        <div class="legenda-status ms-3">
+                            <span class="badge bg-success me-2"><i class="bi bi-circle-fill"></i> Presente</span>
+                            <span class="badge bg-info me-2"><i class="bi bi-suitcase"></i> Chegando</span>
+                            <span class="badge bg-warning"><i class="bi bi-taxi-front"></i> Partindo</span>
                         </div>
                     </div>
                 </div>
@@ -60,12 +84,7 @@
                         <tr>
                             <th width="50">#</th>
                             <th>
-                                <a href="{{ route('hospedes.index', [
-                                    'search' => request('search'),
-                                    'sort' => 'nome',
-                                    'direction' => request('sort') === 'nome' && request('direction') === 'asc' ? 'desc' : 'asc',
-                                    'ativos' => request('ativos')
-                                ]) }}" class="text-decoration-none text-dark">
+                                <a href="{{ route('hospedes.index', array_merge(request()->query(), ['sort' => 'nome', 'direction' => request('sort') === 'nome' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
                                     Nome
                                     @if(request('sort') === 'nome')
                                         <i class="bi bi-caret-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
@@ -74,12 +93,7 @@
                             </th>
                             <th class="d-none d-md-table-cell">Acompanhantes</th>
                             <th>
-                                <a href="{{ route('hospedes.index', [
-                                    'search' => request('search'),
-                                    'sort' => 'apartamento',
-                                    'direction' => request('sort') === 'apartamento' && request('direction') === 'asc' ? 'desc' : 'asc',
-                                    'ativos' => request('ativos')
-                                ]) }}" class="text-decoration-none text-dark">
+                                <a href="{{ route('hospedes.index', array_merge(request()->query(), ['sort' => 'apartamento', 'direction' => request('sort') === 'apartamento' && request('direction') === 'asc' ? 'desc' : 'asc'])) }}" class="text-decoration-none text-dark">
                                     Apto
                                     @if(request('sort') === 'apartamento'))
                                         <i class="bi bi-caret-{{ request('direction') === 'asc' ? 'up' : 'down' }}"></i>
@@ -94,14 +108,41 @@
                     <tbody>
                         @forelse($hospedes as $hospede)
                         @php
-                            $isAtivo = is_null($hospede->data_saida) || \Carbon\Carbon::parse($hospede->data_saida)->isFuture();
+                            $status = match(true) {
+                                // Chegando em breve (próximos 7 dias)
+                                $hospede->data_entrada > now()->toDateString() && $hospede->data_entrada <= now()->addDays(7)->toDateString() => 'chegando',
+                                // Partindo hoje
+                                $hospede->data_saida == now()->toDateString() => 'partindo-hoje',
+                                // Partindo amanhã
+                                $hospede->data_saida == now()->addDay()->toDateString() => 'partindo-amanha',
+                                // Presente no hotel
+                                $hospede->data_entrada <= now()->toDateString() && 
+                                (is_null($hospede->data_saida) || $hospede->data_saida >= now()->toDateString()) => 'presente',
+                                // Inativo
+                                default => 'inativo'
+                            };
+                            
+                            $statusClass = match($status) {
+                                'chegando' => 'info',
+                                'partindo-hoje' => 'warning',
+                                'partindo-amanha' => 'primary',
+                                'presente' => 'success',
+                                default => ''
+                            };
+                            
+                            $statusIcon = match($status) {
+                                'chegando' => 'bi-suitcase',
+                                'partindo-hoje', 'partindo-amanha' => 'bi-taxi-front',
+                                'presente' => 'bi-house-check',
+                                default => 'bi-circle'
+                            };
                         @endphp
-                            <tr class="{{ $isAtivo ? 'table-success' : '' }}">
+                            <tr class="{{ $statusClass ? 'table-'.$statusClass : '' }}">
                                 <td>{{ $loop->iteration + (($hospedes->currentPage() - 1) * $hospedes->perPage()) }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <span class="badge bg-{{ $isAtivo ? 'success' : 'secondary' }} me-2">
-                                            <i class="bi bi-circle-fill"></i>
+                                        <span class="badge bg-{{ $statusClass }} me-2">
+                                            <i class="bi {{ $statusIcon }}"></i>
                                         </span>
                                         <div>
                                             <strong>{{ $hospede->nome }}</strong>
@@ -122,7 +163,7 @@
                                                     <li><a class="dropdown-item" href="#">{{ $acompanhante->nome }}</a></li>
                                                 @endforeach
                                             </ul>
-                                        </div>
+                                        </div>  
                                     @else
                                         <span class="badge bg-secondary">Sem acompanhante</span>
                                     @endif
@@ -130,6 +171,13 @@
                                 <td>
                                     @if($hospede->apartamento)
                                         <span class="badge bg-primary">{{ $hospede->apartamento->numero }}</span>
+                                        @if($status === 'chegando')
+                                            <small class="d-block text-info">Chega: {{ \Carbon\Carbon::parse($hospede->data_entrada)->format('d/m') }}</small>
+                                        @elseif($status === 'partindo-hoje')
+                                            <small class="d-block text-warning">Sai hoje</small>
+                                        @elseif($status === 'partindo-amanha')
+                                            <small class="d-block text-primary">Sai amanhã</small>
+                                        @endif
                                     @else
                                         <span class="badge bg-warning text-dark">Não informado</span>
                                     @endif
@@ -171,9 +219,9 @@
                             <tr>
                                 <td colspan="7" class="text-center py-4">
                                     <i class="bi bi-people fs-4 text-muted"></i>
-                                    <p class="text-muted mt-2">Nenhum hóspede cadastrado ainda.</p>
+                                    <p class="text-muted mt-2">Nenhum hóspede encontrado.</p>
                                     <a href="{{ route('hospedes.create') }}" class="btn btn-sm btn-primary mt-2">
-                                        Cadastrar primeiro hóspede
+                                        Cadastrar novo hóspede
                                     </a>
                                 </td>
                             </tr>
@@ -186,12 +234,7 @@
             @if($hospedes instanceof \Illuminate\Pagination\LengthAwarePaginator && $hospedes->total() > $hospedes->perPage())
             <div class="hospedes-pagination px-4 pb-3">
                 <nav aria-label="Navegação de hóspedes">
-                    {{ $hospedes->appends([
-                        'search' => request('search'),
-                        'sort' => request('sort'),
-                        'direction' => request('direction'),
-                        'ativos' => request('ativos')
-                    ])->onEachSide(1)->links('pagination::bootstrap-5') }}
+                    {{ $hospedes->appends(request()->query())->onEachSide(1)->links('pagination::bootstrap-5') }}
                 </nav>
             </div>
             @endif
@@ -209,9 +252,30 @@
         --bs-table-bg: rgba(25, 135, 84, 0.05);
         --bs-table-hover-bg: rgba(25, 135, 84, 0.1);
     }
+    .table-info {
+        --bs-table-bg: rgba(13, 202, 240, 0.05);
+        --bs-table-hover-bg: rgba(13, 202, 240, 0.1);
+    }
+    .table-warning {
+        --bs-table-bg: rgba(255, 193, 7, 0.05);
+        --bs-table-hover-bg: rgba(255, 193, 7, 0.1);
+    }
+    .table-primary {
+        --bs-table-bg: rgba(13, 110, 253, 0.05);
+        --bs-table-hover-bg: rgba(13, 110, 253, 0.1);
+    }
     .hospedes-table tr {
         vertical-align: middle;
     }
+    .filtros-porteiro .form-switch {
+        white-space: nowrap;
+    }
+    .acompanhantes-dropdown .dropdown-menu {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .badge.bg-info { color: white; }
+    .badge.bg-warning { color: black; }
 </style>
 @endpush
 
@@ -227,25 +291,41 @@
             });
         }
 
-        // Filtro de hóspedes ativos
-        const filterAtivos = document.getElementById('filterAtivos');
+        // Configuração dos filtros
         const searchForm = document.getElementById('searchForm');
         
-        if(filterAtivos && searchForm) {
-            filterAtivos.addEventListener('change', function() {
-                // Cria um input hidden para o filtro ativos
-                let ativosInput = searchForm.querySelector('input[name="ativos"]');
-                if(!ativosInput) {
-                    ativosInput = document.createElement('input');
-                    ativosInput.type = 'hidden';
-                    ativosInput.name = 'ativos';
-                    searchForm.appendChild(ativosInput);
+        // Função para atualizar filtros
+        function updateFilter(filterName, value) {
+            let input = searchForm.querySelector(`input[name="${filterName}"]`);
+            if (!input) {
+                input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = filterName;
+                searchForm.appendChild(input);
+            }
+            input.value = value;
+        }
+
+        // Eventos para os filtros
+        document.querySelectorAll('.form-check-input').forEach(filter => {
+            filter.addEventListener('change', function() {
+                const filterName = this.name;
+                const value = this.checked ? '1' : '';
+                
+                // Desmarca outros filtros quando um é selecionado
+                if(this.checked) {
+                    document.querySelectorAll('.form-check-input').forEach(otherFilter => {
+                        if(otherFilter.name !== filterName) {
+                            otherFilter.checked = false;
+                            updateFilter(otherFilter.name, '');
+                        }
+                    });
                 }
                 
-                ativosInput.value = this.checked ? '1' : '';
+                updateFilter(filterName, value);
                 searchForm.submit();
             });
-        }
+        });
     });
 </script>
 @endpush
