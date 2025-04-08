@@ -7,14 +7,16 @@ use App\Models\LeituraEnergia;
 use App\Models\MovimentacaoHospede;
 use App\Models\Apartamento;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Routing\Controller as BaseController;
 
-class DashboardController extends Controller
+class DashboardController extends BaseController
 {
+
     public function index(Request $request)
     {
-        // Dados existentes
         $movimentacoes = MovimentacaoHospede::with(['hospede', 'apartamento'])
             ->orderBy('data_entrada', 'desc')
             ->get();
