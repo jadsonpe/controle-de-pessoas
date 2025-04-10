@@ -9,6 +9,7 @@ use App\Http\Controllers\AcompanhanteController;
 use App\Http\Controllers\LeituraEnergiaController;
 use App\Http\Controllers\MovimentacaoHospedeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\ProfileController;
 
 /*
@@ -71,7 +72,36 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('movimentacoes', MovimentacaoHospedeController::class);
         
         // Relatórios
-        Route::get('relatorios', [DashboardController::class, 'relatorios'])->name('relatorios');
+        // Route::resource('relatorios', [DashboardController::class, 'relatorios']);
+        Route::prefix('relatorios')->group(function () {
+            Route::get('/', [RelatorioController::class, 'index'])->name('relatorios.index');
+            Route::get('/hospedes', [RelatorioController::class, 'hospedesPorPeriodo'])->name('relatorios.hospedes');
+            Route::get('/movimentacoes', [RelatorioController::class, 'movimentacoes'])->name('relatorios.movimentacoes');
+            Route::get('/energia', [RelatorioController::class, 'energia'])->name('relatorios.energia');
+        });
+        Route::prefix('relatorios')->name('relatorios.')->group(function () {
+
+            // Página inicial dos relatórios
+            Route::get('/', [RelatorioController::class, 'index'])->name('index');
+        
+            // Relatório de hóspedes por período (HTML)
+            Route::get('/hospedes', [RelatorioController::class, 'hospedesPorPeriodo'])->name('hospedes');
+        
+            // Exportar hóspedes em PDF
+            Route::get('/hospedes/pdf', [RelatorioController::class, 'exportHospedesPdf'])->name('hospedes.pdf');
+        
+            // Relatório de movimentações por período (HTML)
+            Route::get('/movimentacoes', [RelatorioController::class, 'movimentacoes'])->name('movimentacoes');
+        
+            // Exportar movimentações em PDF
+            Route::get('/movimentacoes/pdf', [RelatorioController::class, 'exportMovimentacoesPdf'])->name('movimentacoes.pdf');
+        
+            // Relatório de leitura de energia (HTML)
+            Route::get('/energia', [RelatorioController::class, 'energia'])->name('energia');
+        
+            // Exportar leitura de energia em PDF
+            Route::get('/energia/pdf', [RelatorioController::class, 'exportEnergiaPdf'])->name('energia.pdf');
+        });
 
         
         // Gestão de Usuários

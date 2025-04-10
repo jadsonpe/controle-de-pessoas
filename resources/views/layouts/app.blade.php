@@ -143,6 +143,9 @@
 </head>
 <body class="index-page">
 <!-- Header -->
+    @php
+    $role = auth()->user()->role;
+    @endphp
 
 <header id="header" class="header fixed-top bg-dark">
     <div class="container-fluid d-flex align-items-center justify-content-between">
@@ -159,13 +162,15 @@
                     <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Home</a></li>
                     <li><a href="{{ route('hospedes.index') }}" class="{{ request()->routeIs('hospedes.*') ? 'active' : '' }}">Hóspedes</a></li>
                     <li><a href="{{ route('movimentacoes.index') }}" class="{{ request()->routeIs('movimentacoes.*') ? 'active' : '' }}">Movimentações</a></li>
-                    <li><a href="{{ route('apartamentos.index') }}" class="{{ request()->routeIs('apartamentos.*') ? 'active' : '' }}">Aptos</a></li>
                     <li><a href="{{ route('veiculos.index') }}" class="{{ request()->routeIs('veiculos.*') ? 'active' : '' }}">Veículos</a></li>
                     <li><a href="{{ route('acompanhantes.index') }}" class="{{ request()->routeIs('acompanhantes.*') ? 'active' : '' }}">Acompanhantes</a></li>
                     <li><a href="{{ route('leituras-energia.index') }}" class="{{ request()->routeIs('leituras-energia.*') ? 'active' : '' }}">Energia</a></li>
-                    @can('admin-access')
+                    @if ($role === 'administrador')
+                    <!-- conteúdo que só admin pode ver -->
+                    <li><a href="{{ route('apartamentos.index') }}" class="{{ request()->routeIs('apartamentos.*') ? 'active' : '' }}">Aptos</a></li>
                     <li><a href="{{ route('usuarios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">Usuários</a></li>
-                    @endcan
+                    <li><a href="{{ route('relatorios.index') }}" class="{{ request()->routeIs('usuarios.*') ? 'active' : '' }}">Relatórios</a></li>
+                @endif
                 </ul>
             </nav>
             
